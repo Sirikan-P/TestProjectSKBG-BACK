@@ -6,10 +6,125 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  fullName  String
+  createdAt DateTime @default(now())
+
+  wallets                   Wallet[]
+  exchangeOrders            ExchangeOrder[]
+  internalTransfersSent     InternalTransfer[]   @relation("Sender")
+  internalTransfersReceived InternalTransfer[]   @relation("Receiver")
+  withdrawals               WithdrawalRequest[]
+  TransactionHistory        TransactionHistory[]
+}
+
+model Wallet {
+  id           Int      @id @default(autoincrement())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int
+  currencyCode String
+  balance      Decimal  @default(0.0)
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+
+  exchangeOrders            ExchangeOrder[]
+  internalTransfersSent     InternalTransfer[]   @relation("WalletSender")
+  internalTransfersReceived InternalTransfer[]   @relation("WalletReceiver")
+  withdrawals               WithdrawalRequest[]
+  TransactionHistory        TransactionHistory[]
+}
+
+model ExchangeOrder {
+  id             Int          @id @default(autoincrement())
+  user           User         @relation(fields: [userId], references: [id])
+  userId         Int
+  fromCurrency   String
+  toCurrency     String
+  amountFrom     Decimal
+  amountTo       Decimal
+  currentRate    Decimal
+  exchangeRateId Int
+  exchangeRate   ExchangeRate @relation(fields: [exchangeRateId], references: [id])
+  status         OrderStatus  @default(PENDING)
+  createdAt      DateTime     @default(now())
+
+  Wallet   Wallet? @relation(fields: [walletId], references: [id])
+  walletId Int?
+}
+
+model ExchangeRate {
+  id            Int             @id @default(autoincrement())
+  fromCurrency  String
+  toCurrency    String
+  rate          Decimal
+  timestamp     DateTime        @default(now())
+  ExchangeOrder ExchangeOrder[]
+}
+
+model TransactionHistory {
+  id          Int             @id @default(autoincrement())
+  user        User            @relation(fields: [userId], references: [id])
+  userId      Int
+  wallet      Wallet          @relation(fields: [walletId], references: [id])
+  walletId    Int
+  currency    String
+  amount      Decimal
+  type        TransactionType
+  referenceId Int?
+  createdAt   DateTime        @default(now())
+}
+
+model InternalTransfer {
+  id             Int      @id @default(autoincrement())
+  senderUserId   Int
+  receiverUserId Int
+  fromWalletId   Int
+  toWalletId     Int
+  currencyCode   String
+  amount         Decimal
+  createdAt      DateTime @default(now())
+
+  senderUser   User   @relation("Sender", fields: [senderUserId], references: [id])
+  receiverUser User   @relation("Receiver", fields: [receiverUserId], references: [id])
+  fromWallet   Wallet @relation("WalletSender", fields: [fromWalletId], references: [id])
+  toWallet     Wallet @relation("WalletReceiver", fields: [toWalletId], references: [id])
+}
+
+model WithdrawalRequest {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  walletId     Int
+  currencyCode String
+  amount       Decimal
+  destination  String // address หรือ external wallet
+  txHash       String? // กรณีถอนสำเร็จ
+  status       String // PENDING, PROCESSING, COMPLETED, FAILED
+  createdAt    DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  wallet Wallet @relation(fields: [walletId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAW
+  EXCHANGE
+  TRANSFER
 }
