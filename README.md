@@ -1,4 +1,4 @@
-===
+
 ## Crypto Exchange System
 ระบบแลกเปลี่ยนเงิน fiat <-> crypto และการโอนเหรียญภายใน/ภายนอกระบบ  
 
@@ -8,13 +8,12 @@ API Provider: Binance API
 
 ### features : 
 ระบบจัดการผู้ใช้  
-ระบบกระเป๋าเงินผู้ใช้
-แลกเปลี่ยนระหว่างเงิน fiat กับ crypto
-โอนเหรียญภายในระบบ ระหว่างผู้ใช้
-โอนออกนอกระบบ เชื่อมต่อ Binance API สำหรับถอนเหรียญ
-คำขอถอนเงิน (Withdrawal Request)
+ระบบกระเป๋าเงินผู้ใช้  
+แลกเปลี่ยนระหว่างเงิน fiat กับ crypto  
+โอนเหรียญภายในระบบ ระหว่างผู้ใช้  
+คำขอถอนเงิน (Withdrawal Request) เพื่อ โอนออกนอกระบบ เชื่อมต่อ Binance API สำหรับถอนเหรียญ  
 
-===
+
 ## Installation :
 
 
@@ -23,35 +22,45 @@ API Provider: Binance API
 git clone https://github.com/your-username/crypto-exchange.git
 ```
 ### Setup :
+```bash
 npm init 
-npm install express cors nodemon morgan dotenv bcryptjs jsonwebtoken zod
+npm install express cors nodemon morgan dotenv bcryptjs jsonwebtoken axios
 npx prisma init
 npx prisma db push 
-npx prisma db seed
-npm run dev
+npm start
+```
+### script guide : 
+```bash
+"scripts": {
+  "start": "nodemon server.js",
+  "seed": "node prisma/seed.js"
+}
 
+npm run seed
+```
 
 ### env guide :
+```bash
 PORT =8800 
 DATABASE_URL= ***  
-JWT_SECRET= ***  
+JWT_SECRET= ABC  
+```
 
-===
-### service :
+### api :
 |endpoint |method |authen |params |query |body |
 |:--- |:--- |:--- |:--- |:--- |:--- |
-|/auth/register | post|-|-|-| { username, fullName ,password , confirmPassword} |
 |/auth/login | post |-|-|-| {username, password}
-|/auth/me |get|y|-|-|-|  {userId}
-|/wallet|get|y|-|-|-|  {userId}
-|/wallet|post|y|-|-|  
-|/wallet|patch|y|:id|-|
+|/auth/me |get|y|-|-|-| 
+|/wallet/user|get|y|:userId|-|-| 
+|/wallet|post|y|-|-| {userId,currencyCode} 
+|/wallet|get|y|:id|-|-|
+|/exchange/user|get|y|:userId|-|-|
 |/exchange|post|y|-|-|{userId,fromCurrency,toCurrency, amount} 
-|/transfer/internal|post|y|-|-|{fromWalletId , toWalletId,amount}
-|/transfer/external|post|y|-|-|{walletId , currencyCode ,amount , destinationAddress}
-|/withdrawals|get|y|:id|-|-
-|/withdrawals|post|y|-|-|{}
-|/withdrawals|patch|y|:id|-|-
+|/exchange/order|get|y|:id|-|-|
+|/transfer/internal|post|y|-|-|{senderUserId,receiverUserId,fromWalletId , toWalletId,currencyCode,amount}
+|/withdrawals|get|y|:userId|-|-|
+|/withdrawals|post|y|-|-|{userId,walletId,currencyCode,amount,destination}
 
-===
+
 ### Note :
+Maintained by Sirikan P.
