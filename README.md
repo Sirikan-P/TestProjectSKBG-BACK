@@ -4,7 +4,7 @@
 
 ### Tech Stack : 
 BACKEND : Node.js, Express, Prisma , MySQL
-API Provider: Binance API
+API Provider: -
 
 ### features : 
 ระบบจัดการผู้ใช้  
@@ -17,14 +17,9 @@ API Provider: Binance API
 ## Installation :
 
 
-### Clone Project
-```bash
-git clone https://github.com/your-username/crypto-exchange.git
-```
 ### Setup :
 ```bash
-npm init 
-npm install express cors nodemon morgan dotenv bcryptjs jsonwebtoken axios
+npm install 
 npx prisma init
 npx prisma db push 
 npm start
