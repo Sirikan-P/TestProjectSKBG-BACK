@@ -8,6 +8,7 @@ const authController = require("../controllers/auth-controller")
 const { authorize } = require("../middlewares/authenticate")
 
 //@ENDPOINT http://localhost:8800/auth/login
+router.post('/register', authController.register)
 router.post('/login', authController.login)
 router.get('/me' ,authorize,authController.currentUser) 
 

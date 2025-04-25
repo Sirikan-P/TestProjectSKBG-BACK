@@ -1,12 +1,15 @@
 const prisma = require('../models')
 console.log('DB seed...')
 
+const bcrypt = require('bcryptjs')
+const hashedPassword = bcrypt.hashSync('123456' ,10)
+
 async function seedDB() {
  // Create users
  const alice = await prisma.user.create({
   data: {
     email: 'alice@example.com',
-    password: 'hashed_password1',
+    password: hashedPassword,
     fullName: 'Alice Wonderland',
   },
 });
@@ -14,7 +17,7 @@ async function seedDB() {
 const bob = await prisma.user.create({
   data: {
     email: 'bob@example.com',
-    password: 'hashed_password2',
+    password: hashedPassword,
     fullName: 'Bob Builder',
   },
 });
